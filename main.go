@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	
 	"github.com/CatchZeng/dingtalk/pkg/dingtalk"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -85,7 +86,7 @@ func main() {
 					if _, ok := apidataMap[mpods[i]]; !ok {
 						log.Printf("this pod exist in ksm and not exist k8s cluster:%s\n", mpods[i])
 
-						if dingtalk!=nil{
+						if dingtalkClient!=nil{
 							content := fmt.Sprintf("======KSM-Checker======,\n\n stale pod:%s", mpods[i])
 							msg := dingtalk.NewMarkdownMessage().SetMarkdown("KSM-Checker", content).SetAt([]string{""}, false)
 							dingtalkClient.Send(msg)
