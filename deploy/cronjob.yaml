@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: ksm-checker
 spec:
-  schedule: "*/2 * * * *"
+  schedule: "*/30 * * * *"
   jobTemplate:
     spec:
       template:
@@ -11,7 +11,7 @@ spec:
           serviceAccountName: ksm-checker
           containers:
           - name: ksm-checker
-            image: github.com/liangyuanpeng/ksm-checker:v0.1.0
+            image: github.com/liangyuanpeng/ksm-checker:v0.2.0
             imagePullPolicy: IfNotPresent
             args:
             - --url

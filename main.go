@@ -4,18 +4,25 @@ import (
 	"bytes"
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/CatchZeng/dingtalk/pkg/dingtalk"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
+)
+
+var (
+	dingtalkClient *dingtalk.Client
 )
 
 func main() {
@@ -51,6 +58,12 @@ func main() {
 		panic(err.Error())
 	}
 
+	token := os.Getenv("TOKEN")
+	secret := os.Getenv("SECRET")
+	if token != "" && secret != "" {
+		dingtalkClient = dingtalk.NewClient(token, secret)
+	}
+
 	result, code := get(context.TODO(), *url)
 	if code == 200 {
 		datamap := parseMetricsForPod(result)
@@ -71,6 +84,13 @@ func main() {
 				for i := 0; i < len(mpods); i++ {
 					if _, ok := apidataMap[mpods[i]]; !ok {
 						log.Printf("this pod exist in ksm and not exist k8s cluster:%s\n", mpods[i])
+
+						if dingtalk!=nil{
+							content := fmt.Sprintf("======KSM-Checker======,\n\n stale pod:%s", mpods[i])
+							msg := dingtalk.NewMarkdownMessage().SetMarkdown("KSM-Checker", content).SetAt([]string{""}, false)
+							dingtalkClient.Send(msg)
+						}
+						
 					}
 				}
 
